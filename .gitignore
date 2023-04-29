@@ -3,3 +3,5 @@ src\utils\pintos-gdb
 src\misc\gdb-macros
 src\tests\threads\MakeFile
 src\utils\Pintos.pm
+*.o
+*.o
