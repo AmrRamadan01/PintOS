@@ -7,6 +7,7 @@
 #include "threads/interrupt.h"
 #include "threads/synch.h"
 #include "threads/thread.h"
+#include <kernel/list.h>
   
 /* See [8254] for hardware details of the 8254 timer chip. */
 
@@ -192,6 +193,13 @@ timer_interrupt (struct intr_frame *args UNUSED)
   ticks++;
   thread_tick ();
 
+  /** Futer Improvement ** [suggested by Amr]
+   * this algoritm may be improved by introducing 
+   * a "tick_mini" variable that stores the minimum
+   * value of the waketick in the sleep_list. Thus, 
+   * the routine is not executed unless the tick_mini
+   * is greater than the current ticks.
+  */
 
 	while(!list_empty(&sleep_list))
 	{
