@@ -7,6 +7,8 @@
 #include "threads/interrupt.h"
 #include "threads/synch.h"
 #include "threads/thread.h"
+#include <kernel/list.h>
+
   
 /* See [8254] for hardware details of the 8254 timer chip. */
 
@@ -27,7 +29,7 @@ static int64_t ticks;
    Initialized by timer_calibrate(). */
 static unsigned loops_per_tick;
 
-// struct list sleeping_list;
+struct list sleeping_list;
 
 static intr_handler_func timer_interrupt;
 static bool too_many_loops (unsigned loops);
@@ -42,6 +44,8 @@ timer_init (void)
 {
   pit_configure_channel (0, 2, TIMER_FREQ);
   intr_register_ext (0x20, timer_interrupt, "8254 Timer");
+  list_init (&sleeping_list);
+
 }
 
 /* Calibrates loops_per_tick, used to implement brief delays. */
@@ -100,7 +104,8 @@ struct semaphore sleeping;
 //##############################################################################################################################
 void
 timer_sleep (int64_t ticks) 
-{ //this is a wrong implementation should be corrected
+{ 
+  //this is a wrong implementation should be corrected
   //sol: you should block instead
   // how to block?
   // make a queue and put the blocked threads in it 
@@ -113,18 +118,26 @@ timer_sleep (int64_t ticks)
   // but there is an importnat note.. in timer sleep use
   // list_insert_order() based on the waking up time
   // this is to avoid problems in advanced scheduler mlfqs 
- 
+
+  if (!ticks) return;
+
+ 	struct thread* curthread;
+
   ASSERT (intr_get_level () == INTR_ON);
-  // assign requested sleep time to current thread
-  thread_current()->sleep_ticks = ticks;
+
   // disable interrupts to allow thread blocking
   enum intr_level old_level = intr_disable();
+
+  // assign requested sleep time to current thread
+  curthread->sleep_ticks = timer_ticks() + abs(ticks);
+
+  if(DEBUG) printf("thread tid %d \n",curthread->tid);
+
+  list_insert_ordered (&sleeping_list, &curthread->elem, cmp_waketick, NULL);
+ 
   // block current thread
-
-  if(DEBUG) printf("thread tid %d \n",thread_current()->tid);
-
-
   thread_block();
+
   if(DEBUG) printf("status %d \n",thread_current()->status);
 
 
@@ -218,25 +231,11 @@ timer_print_stats (void)
 * If the thread's sleep_ticks has reached 0, then unblock the
 * sleeping thread.
 */
-static void
-wake_threads(struct thread *t, void *aux)
-{
-  if(t->status == THREAD_BLOCKED)
-  {
-    // if(DEBUG) printf("ticks 1 :%d\n",t->sleep_ticks);
-    if(t->sleep_ticks > 0)
-    {
-      // if(DEBUG) printf("ticks 2 :%d\n",t->sleep_ticks);
-      t->sleep_ticks--;
-      if(t->sleep_ticks == 0)
-      {
-        if(DEBUG) printf("status %d \n",thread_current()->status);
-        thread_unblock(t);
-        if(DEBUG) printf("thread %d unblocked\n",t->tid);
-      }
-    }
-  }
-}
+
+// static void
+// wake_threads(int64_t ticks)
+// {
+// }
 
 /* Timer interrupt handler. */
 static void
@@ -244,12 +243,24 @@ timer_interrupt (struct intr_frame *args UNUSED)
 { //must be very optemized
 //
 // another task for advanced scheduler
+
+  struct list_elem *head;
+	struct thread *hthread;
+
   ticks++;
   thread_tick ();
 
   // if(DEBUG) printf(".");
-  thread_foreach(wake_threads, 0);
+  while(!list_empty(&sleeping_list)){
+    head = list_front(&sleeping_list);
+    hthread = list_entry (head, struct thread, elem);
 
+    if(hthread->sleep_ticks > ticks )
+      break;
+
+    list_remove (head);
+    thread_unblock(hthread);
+  }
 }
 
 /* Returns true if LOOPS iterations waits for more than one timer
