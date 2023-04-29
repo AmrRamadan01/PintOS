@@ -1,11 +1,8 @@
 #ifndef DEVICES_TIMER_H
 #define DEVICES_TIMER_H
 
- #define UNUSED __attribute__ ((unused))
-
 #include <round.h>
 #include <stdint.h>
-#include <stdbool.h>
 
 /* Number of timer interrupts per second. */
 #define TIMER_FREQ 100
