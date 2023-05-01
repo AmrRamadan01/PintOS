@@ -38,7 +38,18 @@ FirstName LastName <email@domain.example>
    
 ++ struct list sleep_list; /* priority queue-minHeap- listing all sleeping threads ascending according to its waketick */   
    Added to timer.c;
-   
+
+++ struct thread* curthread; /* thread pointer to iterate over the sleep_list*/
+Added to timer.c;
+	
+++ enum intr_level curlevel; /* enum to kepp the previous level of int_level before being altered */
+Added to timer.c;
+
+++ struct list_elem *head; /* list element pointer to capture the thread to be waked up from the sleep_list */
+Added to timer.c;
+
+++ struct thread *hthread; /* thread pointer to keep track of the thread with the smaller wakeup time in sleep_list */
+Added to timer.c;
 
 ---- ALGORITHMS ----
 
@@ -51,7 +62,7 @@ FirstName LastName <email@domain.example>
 2. Inserts the current thread into the sleep_list in order of wake-up time using the list_insert_ordered function.
 3. Blocks the current thread using the thread_block function, which means that it will not be scheduled to run until it is unblocked by another thread.
 
- the timer_interrupt function is called periodically by the hardware timer interrupt. It increments the global ticks variable, updates thread statistics,
+ the timer_interrupt function is called periodically by the hardware timer interrupt each processor tick. It increments the global ticks variable, updates thread statistics,
  and performs thread scheduling. If the sleep_list is not empty, it checks the wake-up time of the first thread in the list. 
  If the wake-up time is greater than the current number of ticks,the loop is broken and the function returns.
  Otherwise, it removes the first thread from the sleep_list and unblocks it using the thread_unblock function, which adds it to the ready queue for scheduling.
@@ -89,7 +100,7 @@ as a critical section executing in an atomic way.
 >> another design you considered?
 
 ! in prev. designs was polling on thread ticks which leads to busy-waits and reduce the overall performance of the system. by using timer_interrupt, busy-waits get eliminated.
-and sorted_list is used to store sleeping threads in ascending ordered, which improved the time complexity and total efficient.  
+and sorted_list is used to store sleeping threads in ascending ordered, which improved the time complexity and processor utilization efficient.  
 
 			 PRIORITY SCHEDULING
 			 ===================
