@@ -21,6 +21,7 @@
 /* Number of timer ticks since OS booted. */
 static int64_t ticks;
 
+/* ordered list of all sleeping threads*/
 struct list sleep_list;
 
 /* Number of loops per timer tick.
@@ -40,6 +41,8 @@ timer_init (void)
 {
   pit_configure_channel (0, 2, TIMER_FREQ);
   intr_register_ext (0x20, timer_interrupt, "8254 Timer");
+ 
+  /* inialize list of sleeping threads */
   list_init (&sleep_list);
 }
 
@@ -94,7 +97,9 @@ void
 timer_sleep (int64_t ticks) 
 {
 
+  /* thread pointer to iterate over the sleep_list*/
 	struct thread* curthread;
+
 	enum intr_level curlevel;
 
   ASSERT (intr_get_level () == INTR_ON);
@@ -103,8 +108,13 @@ timer_sleep (int64_t ticks)
 
   curthread = thread_current();
 
+  /* set the waketick of the calling thread to be 
+  *  the required offset (ticks) + the real processor time (ticks) */
   curthread->waketick = timer_ticks() + ticks;
 
+  /* insert the current thread into the list of sleeping threads 
+  *  in ascending order of waketick (smaller waketick at the head). 
+  *  cmp_waketick is owned by thread.c */
   list_insert_ordered (&sleep_list, &curthread->elem, cmp_waketick, NULL);
 
   thread_block();
@@ -190,15 +200,21 @@ timer_interrupt (struct intr_frame *args UNUSED)
 	struct list_elem *head;
 	struct thread *hthread;
 
-  ticks++;
-  thread_tick ();
-
-  /** Futer Improvement ** [suggested by Amr]
+  /** Futuer Improvement ** [suggested by Amr]
    * this algoritm may be improved by introducing 
    * a "tick_mini" variable that stores the minimum
    * value of the waketick in the sleep_list. Thus, 
    * the routine is not executed unless the tick_mini
    * is greater than the current ticks.
+  */
+
+  ticks++;
+  thread_tick ();
+
+  /**
+   * iterate over the sleep_list to wake up and unblock 
+   * any threads that has a wakeup time is equal or 
+   * greater thant the current processor time
   */
 
 	while(!list_empty(&sleep_list))
