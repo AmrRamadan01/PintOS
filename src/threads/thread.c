@@ -60,7 +60,6 @@ static unsigned thread_ticks;   /* # of timer ticks since last yield. */
    Controlled by kernel command-line option "-o mlfqs". */
 bool thread_mlfqs;
 
-/* owned by timer.c */
 extern struct list sleep_list;
 
 static void kernel_thread (thread_func *, void *aux);
@@ -678,8 +677,6 @@ allocate_tid (void)
    Used by switch.S, which can't figure it out on its own. */
 uint32_t thread_stack_ofs = offsetof (struct thread, stack);
 
-
-/* compare waketick of threads (used in timer.c)*/
 bool cmp_waketick(struct list_elem *first, struct list_elem *second, void *aux)
 {
   struct thread *fthread = list_entry (first, struct thread, elem);
@@ -689,7 +686,6 @@ bool cmp_waketick(struct list_elem *first, struct list_elem *second, void *aux)
 
 }
 
-/* to be documented [by Amr]*/
 bool cmp_priority(struct list_elem *first, struct list_elem *second, void *aux)
 {
   struct thread *fthread = list_entry (first, struct thread, elem);
