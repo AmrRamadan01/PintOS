@@ -154,25 +154,36 @@ and sorted_list is used to store sleeping threads in ascending ordered, which im
 >> thread after each given number of timer ticks:
 
 timer  recent_cpu    priority   thread
-ticks   A   B   C   A   B   C   to run
------  --  --  --  --  --  --   ------
- 0
- 4
- 8
-12
-16
-20
-24
-28
-32
-36
+ticks   A   B   C   A   B   C   to run      note
+-----  --- --- --- --- --- ---  -------    -------
+ 0      0   0   0   63  61  59     A       decay=0  
+ 4      4   0   0   62  61  59     A        
+ 8      8   0   0   61  61  59     A       round robin 
+12      12  0   0   60  61  59     B        
+16      12  4   0   60  60  59     B       round robin  
+20      12  8   0   60  59  59     A        
+24      16  8   0   59  59  59     A       round robin  
+28      20  8   0   58  59  59     C       round robin 
+32      20  8   4   58  59  58     B       round robin 
+36      20  12  4   58  58  58     A       round robin 
 
 >> C3: Did any ambiguities in the scheduler specification make values
 >> in the table uncertain?  If so, what rule did you use to resolve
 >> them?  Does this match the behavior of your scheduler?
 
+Yes, the tick at which more than one thread has the same priority. At this moment, we adopted the 
+round robin scheduling scheme. This behavior should match the behavior of the scheduler except for 
+some timing errors.
+
 >> C4: How is the way you divided the cost of scheduling between code
 >> inside and outside interrupt context likely to affect performance?
+
+Most of our scheduling runs inside interrupt context, because load average and the recent cpu
+for each thread is calculated every second, but we can't change this because if these
+calculations done on the  kernel thread, the thread could be interrupted with a timer 
+tick and so calculations will not be done in the right time.
+Also priority recalculations done in timer every 4 ticks for the same reason.
+due to previous restrictions the performance was affected negatively.
 
 ---- RATIONALE ----
 
@@ -181,12 +192,29 @@ ticks   A   B   C   A   B   C   to run
 >> time to work on this part of the project, how might you choose to
 >> refine or improve your design?
 
+Our design may be not the best performance wise due to recalculations in the interrupt context,
+but it is the best we could get to balance between performance and correctness.  
+The good things in this design can be that it is easy to understand, simple.
+But the bad things in this design can be as stated earlier that recalculations are done 
+in the interrupt context which negatively affect the performance. Also, the basepriority could 
+have been handled more firmly to prevent any call to thread_set_priority while priority donation 
+is in control.
+
 >> C6: The assignment explains arithmetic for fixed-point math in
 >> detail, but it leaves it open to you to implement it.  Why did you
 >> decide to implement it the way you did?  If you created an
 >> abstraction layer for fixed-point math, that is, an abstract data
 >> type and/or a set of functions or macros to manipulate fixed-point
 >> numbers, why did you do so?  If not, why not?
+
+we  represented fixed-point by storing the actual value in a typedef,
+and we wrote necessary functions for different operations between int and
+fixed_point-either change int to fixed or make mathematical operation between them- 
+we did this because kernel only supports integers arithmetic so we had to make a new
+datatype to represent the fixed_point numbers to perform different operations on them 
+for "recent_cpu and load_avg". 
+
+
 
 			   SURVEY QUESTIONS
 			   ================

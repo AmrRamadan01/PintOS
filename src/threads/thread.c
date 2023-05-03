@@ -169,6 +169,11 @@ thread_tick (void)
       {
         struct thread *f = list_entry (e, struct thread, allelem);
         f->priority = PRI_MAX - tointround(divin(f->recent_cpu,4)) - (f->nice * 2);
+
+        /* check if the priority excedes the PRI_MAX macro */
+        if (f->priority > PRI_MAX){
+          f->priority = PRI_MAX;
+        }
       }
     }
   }
