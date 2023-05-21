@@ -57,7 +57,8 @@ static unsigned thread_ticks;   /* # of timer ticks since last yield. */
 
 /* If false (default), use round-robin scheduler.
    If true, use multi-level feedback queue scheduler.
-   Controlled by kernel command-line option "-o mlfqs". */
+   Controlled by kernel command
+   -line option "-o mlfqs". */
 bool thread_mlfqs;
 
 extern struct list sleep_list;

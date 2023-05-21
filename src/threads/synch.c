@@ -221,6 +221,7 @@ lock_acquire (struct lock *lock)
       {
         if(temp->priority > temp->locker->priority)
         {
+          /* donate priority */
           temp->locker->priority = temp->priority;
           temp = temp->locker;
         }
