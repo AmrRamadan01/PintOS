@@ -39,7 +39,7 @@
                : "=a" (retval)                                  \
                : [number] "i" (NUMBER),                         \
                  [arg0] "r" (ARG0),                             \
-                 [arg1] "r" (ARG1)                               \
+                 [arg1] "r" (ARG1)                              \
                : "memory");                                     \
           retval;                                               \
         })
@@ -56,7 +56,7 @@
                : [number] "i" (NUMBER),                         \
                  [arg0] "r" (ARG0),                             \
                  [arg1] "r" (ARG1),                             \
-                 [arg2] "r" (ARG2)                            \
+                 [arg2] "r" (ARG2)                              \
                : "memory");                                     \
           retval;                                               \
         })

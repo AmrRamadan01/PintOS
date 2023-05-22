@@ -19,7 +19,9 @@ SECTIONS
   .eh_frame : { *(.eh_frame) }
   .data : { *(.data) 
 	    _signature = .; LONG(0xaa55aa55) }
+
   .plt : { *(.plt*) }
+
   /* BSS (zero-initialized data) is after everything else. */
   _start_bss = .;
   .bss : { *(.bss) }
