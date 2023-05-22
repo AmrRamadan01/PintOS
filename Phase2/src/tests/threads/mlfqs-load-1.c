@@ -21,11 +21,7 @@ test_mlfqs_load_1 (void)
   int elapsed;
   int load_avg;
   
-  printf("\n this is not mlfqs \n");
-
   ASSERT (thread_mlfqs);
-  
-  printf("\n this is mlfqs \n");
 
   msg ("spinning for up to 45 seconds, please wait...");
 
@@ -33,7 +29,6 @@ test_mlfqs_load_1 (void)
   for (;;) 
     {
       load_avg = thread_get_load_avg ();
-      printf("\n\nload avg = %d\n\n", load_avg);
       ASSERT (load_avg >= 0);
       elapsed = timer_elapsed (start_time) / TIMER_FREQ;
       if (load_avg > 100)

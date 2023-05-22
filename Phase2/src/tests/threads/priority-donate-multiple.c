@@ -2,8 +2,7 @@
    higher-priority threads.  Each of these threads blocks
    acquiring one of the locks and thus donate their priority to
    the main thread.  The main thread releases the locks in turn
-   and relinquishesيتنازل its donated priorities.
-   Relinquishes" means to give up or release something voluntarily
+   and relinquishes its donated priorities.
    
    Based on a test originally submitted for Stanford's CS 140 in
    winter 1999 by Matt Franklin <startled@leland.stanford.edu>,

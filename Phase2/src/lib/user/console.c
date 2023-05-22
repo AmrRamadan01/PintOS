@@ -32,7 +32,6 @@ puts (const char *s)
 {
   write (STDOUT_FILENO, s, strlen (s));
   putchar ('\n');
-
   return 0;
 }
 

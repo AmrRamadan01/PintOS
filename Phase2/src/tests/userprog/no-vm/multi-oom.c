@@ -5,6 +5,8 @@
    before it fails to start a new process.  We require that,
    if a process doesn't actually get to start, exec() must
    return -1, not a valid PID.
+   
+  
 
    We repeat this process 10 times, checking that your kernel
    allows for the same level of depth every time.
@@ -52,7 +54,7 @@ consume_some_resources (void)
      Depending on how file descriptors are allocated inside
      the kernel, open() may fail if the kernel is low on memory.
      A low-memory condition in open() should not lead to the
-     termination of the process.  */
+     termination of the process. */
   for (fd = 0; fd < fdmax; fd++)
     if (open (test_name) == -1)
       break;
@@ -115,6 +117,7 @@ main (int argc, char *argv[])
   /* If -k is passed, crash this process. */
   if (argc > 2 && !strcmp(argv[2], "-k"))
     {
+     //msg("here\n");
       consume_some_resources_and_die (n);
       NOT_REACHED ();
     }
@@ -125,10 +128,11 @@ main (int argc, char *argv[])
   for (i = 0; i < howmany; i++)
     {
       pid_t child_pid;
-
+      // msg("here2\n");
       /* Spawn a child that will be abnormally terminated.
          To speed the test up, do this only for processes
          spawned at a certain depth. */
+         
       if (n > EXPECTED_DEPTH_TO_PASS/2)
         {
           child_pid = spawn_child (n + 1, CRASH);
@@ -177,3 +181,4 @@ main (int argc, char *argv[])
   return expected_depth;
 }
 // vim: sw=2
+

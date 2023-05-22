@@ -6,7 +6,7 @@
    Next, the main thread ups the semaphore, waking up L.  L
    releases the lock, which wakes up H.  H "up"s the semaphore,
    waking up M.  H terminates, then M, then L, and finally the
-   main thread. (order of sema release is L H M )
+   main thread.
 
    Written by Godmar Back <gback@cs.vt.edu>. */
 

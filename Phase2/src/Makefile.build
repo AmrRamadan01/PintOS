@@ -12,7 +12,7 @@ include ../../tests/Make.tests
 kernel.bin: CPPFLAGS += -I$(SRCDIR)/lib/kernel
 
 # Core kernel.
-threads_SRC  = threads/start.S		# Startup code.
+threads_SRC  = threads/start.S	       # Startup code.
 threads_SRC += threads/init.c		# Main program.
 threads_SRC += threads/thread.c		# Thread management core.
 threads_SRC += threads/switch.S		# Thread switch routine.

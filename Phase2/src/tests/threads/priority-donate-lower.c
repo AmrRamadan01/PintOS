@@ -1,6 +1,6 @@
 /* The main thread acquires a lock.  Then it creates a
    higher-priority thread that blocks acquiring the lock, causing
-   it to donate it priority to the main thread.  The main
+   it to donate their priorities to the main thread.  The main
    thread attempts to lower its priority, which should not take
    effect until the donation is released. */
 
